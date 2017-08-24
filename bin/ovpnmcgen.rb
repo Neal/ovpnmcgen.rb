@@ -11,7 +11,7 @@ program :help_formatter, :compact
 default_command :help
 never_trace!
 global_option '-c', '--config FILE', 'Specify path to config file. [Default: .ovpnmcgen.rb.yml]'
- 
+
 command :generate do |c|
   c.syntax = 'ovpnmcgen.rb generate [options] <user> <device>'
   c.summary = 'Generates iOS Configuration Profiles (.mobileconfig)'
@@ -27,7 +27,7 @@ command :generate do |c|
   c.option '--p12file FILE', 'Path to user PKCS#12 file. (Required)'
   c.option '--p12pass PASSWORD', 'Password to unlock PKCS#12 file.'
   c.option '--[no-]vod', 'Enable or Disable VPN-On-Demand. [Default: Enabled]'
-  c.option '--security-level LEVEL', 'Security level of VPN-On-Demand Behaviour: paranoid, high, medium. [Default: high]'
+  c.option '--security-level LEVEL', 'Security level of VPN-On-Demand Behaviour: paranoid, high, medium. [Default: paranoid]'
   c.option '--vpn-uuid UUID', 'Override a VPN configuration payload UUID.'
   c.option '--profile-uuid UUID', 'Override a Profile UUID.'
   c.option '--cert-uuid UUID', 'Override a Certificate payload UUID.'
@@ -62,7 +62,7 @@ command :generate do |c|
       end,
       :proto => (config.proto)? config.proto : 'udp',
       :port => (config.port)? config.port : 1194,
-      :security_level => (config.security_level)? config.security_level : 'high'
+      :security_level => (config.security_level)? config.security_level : 'paranoid'
 
     user, device = args
 

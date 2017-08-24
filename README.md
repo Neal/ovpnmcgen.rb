@@ -9,12 +9,12 @@ OpenVPN iOS Configuration Profile Utility
 
 Generates iOS configuration profiles (.mobileconfig) that configures OpenVPN for use with VPN-on-Demand that are not accessible through the Apple Configurator or the iPhone Configuration Utility.
 
-Although there are many possible VPN-on-Demand (VoD) triggers, this utility currently only implements `SSIDMatch`, `InterfaceTypeMatch`, and optionally `URLStringProbe`. For 'high' (default) security level, the following algorithm is executed upon network changes, in order:
+Although there are many possible VPN-on-Demand (VoD) triggers, this utility currently only implements `SSIDMatch`, `InterfaceTypeMatch`, and optionally `URLStringProbe`. For 'paranoid' security level, the following algorithm is executed upon network changes, in order:
 
 - If wireless SSID matches any specified with `--trusted-ssids`, tear down the VPN connection and do not reconnect on demand.
 - Else if wireless SSID matches any specified with `--untrusted-ssids`, unconditionally bring up the VPN connection on the next network attempt.
 - Else if the primary network interface becomes Wifi (any SSID except those above), unconditionally bring up the VPN connection on the next network attempt.
-- Else if the primary network interface becomes Cellular, leave any existing VPN connection up, but do not reconnect on demand.
+- Else if the primary network interface becomes Cellular, unconditionally bring up the VPN connection on the next network attempt.
 - Else, leave any existing VPN connection up, but do not reconnect on demand.
 
 Note: The other match triggers, such as `DNSDomainMatch`, `DNSServerAddressMatch`, and per-connection domain inspection (`ActionParameters`), are not implemented. I reckon some kind of DSL will need to be built to support them; pull-requests are welcome.
@@ -53,7 +53,7 @@ Usage: ovpnmcgen.rb generate [options] <user> <device>
     --p12file FILE       Path to user PKCS#12 file. (Required)
     --p12pass PASSWORD   Password to unlock PKCS#12 file.
     --[no-]vod           Enable or Disable VPN-On-Demand. [Default: Enabled]
-    --security-level LEVEL Security level of VPN-On-Demand Behaviour: paranoid, high, medium. [Default: high]
+    --security-level LEVEL Security level of VPN-On-Demand Behaviour: paranoid, high, medium. [Default: paranoid]
     --vpn-uuid UUID      Override a VPN configuration payload UUID.
     --profile-uuid UUID  Override a Profile UUID.
     --cert-uuid UUID     Override a Certificate payload UUID.
@@ -84,7 +84,7 @@ url_probe: https://vpn.example.com/canVPN.php
 
 ### Security Levels
 
-There are three different security levels to choose from, 'paranoid', 'high' (default), and 'medium'. The algorithm illustrated above is for 'high'.
+There are three different security levels to choose from, 'paranoid' (default), 'high', and 'medium'. The algorithm illustrated above is for 'high'.
 
 For 'paranoid' security level, the following algorithm is executed upon network changes, in order:
 
