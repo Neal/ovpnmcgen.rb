@@ -41,7 +41,7 @@ Build and install the gem:
 ## Usage
 
 ```
-Usage: ovpnmcgen.rb generate [options] <user> <device>
+Usage: ovpnmcgen.rb generate [options] <client_name>
 
   Options:
     -c, --config FILE    Specify path to config file. [Default: .ovpnmcgen.rb.yml]
@@ -273,7 +273,7 @@ Output:
 	$ ovpnmcgen.rb gen --trusted-ssids home,school --untrusted-ssids virusnet \
 	--host vpn.example.com --cafile path/to/ca.pem --tafile path/to/ta.key \
 	--url-probe http://vpn.example.com/status \
-	--p12file path/to/john-ipad.p12 --p12pass p12passphrase john ipad
+	--p12file path/to/john-ipad.p12 --p12pass p12passphrase johns-ipad
 
 Output similar to above:
 

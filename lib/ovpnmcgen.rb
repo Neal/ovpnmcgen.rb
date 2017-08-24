@@ -13,7 +13,7 @@ module Ovpnmcgen
     certUUID = inputs[:cert_uuid] || SecureRandom.uuid.chomp.upcase
     vpnUUID = inputs[:vpn_uuid] || SecureRandom.uuid.chomp.upcase
     plistUUID = inputs[:profile_uuid] || SecureRandom.uuid.chomp.upcase
-    user, device, domain, host, proto, enableVOD = inputs[:user], inputs[:device], inputs[:host], inputs[:host], inputs[:proto], inputs[:enableVOD]
+    client, domain, host, proto, enableVOD = inputs[:client], inputs[:host], inputs[:host], inputs[:proto], inputs[:enableVOD]
     p12pass = inputs[:p12pass] || ''
     trusted_ssids = inputs[:trusted_ssids] || false
     untrusted_ssids = inputs[:untrusted_ssids] || false
@@ -52,7 +52,12 @@ module Ovpnmcgen
         'client' => 'NOARGS',
         'comp-lzo' => 'NOARGS',
         'dev' => 'tun',
-        'remote-cert-tls' => 'server'
+        'remote-cert-tls' => 'server',
+        'redirect-gateway' => 'def1',
+        'tls-version-min' => '1.2',
+        'tls-cipher' => 'TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-128-GCM-SHA256:TLS-DHE-RSA-WITH-AES-256-CBC-SHA:TLS-DHE-RSA-WITH-CAMELLIA-256-CBC-SHA:TLS-DHE-RSA-WITH-AES-128-CBC-SHA:TLS-DHE-RSA-WITH-CAMELLIA-128-CBC-SHA',
+        'cipher' => 'AES-256-CBC',
+        'auth' => 'SHA512'
       }
     end
     if remotes
@@ -119,11 +124,11 @@ module Ovpnmcgen
 
     cert = {
       'Password' => p12pass,
-      'PayloadCertificateFileName' => "#{user}-#{device}.p12",
+      'PayloadCertificateFileName' => "#{client}.p12",
       'PayloadContent' => StringData.new(p12file),
       'PayloadDescription' => 'Provides device authentication (certificate or identity).',
-      'PayloadDisplayName' => "#{user}-#{device}.p12",
-      'PayloadIdentifier' => "#{identifier}.#{user}-#{device}.credential",
+      'PayloadDisplayName' => "#{client}.p12",
+      'PayloadIdentifier' => "#{identifier}.#{client}.credential",
       'PayloadOrganization' => domain,
       'PayloadType' => 'com.apple.security.pkcs12',
       'PayloadUUID' => certUUID,
@@ -132,13 +137,13 @@ module Ovpnmcgen
 
     vpn = {
       'PayloadDescription' => "Configures VPN settings, including authentication.",
-      'PayloadDisplayName' => "VPN (#{host}/VoD)",
-      'PayloadIdentifier' => "#{identifier}.#{user}-#{device}.vpnconfig",
+      'PayloadDisplayName' => "VPN (#{host})",
+      'PayloadIdentifier' => "#{identifier}.#{client}.vpnconfig",
       'PayloadOrganization' => domain,
       'PayloadType' => 'com.apple.vpn.managed',
       'PayloadUUID' => vpnUUID,
       'PayloadVersion' => 1,
-      'UserDefinedName' => "#{host}/VoD",
+      'UserDefinedName' => "#{client}@#{host}",
       'VPN' => {
         'AuthenticationMethod' => 'Certificate',
         'OnDemandEnabled' => (enableVOD)? 1 : 0,
@@ -155,9 +160,9 @@ module Ovpnmcgen
     #encPlistPayloadContent = cmsEncrypt([vpn, cert].to_plist).der_format
 
     plist = {
-      'PayloadDescription' => "OpenVPN Configuration Payload for #{user}-#{device}@#{host}",
-      'PayloadDisplayName' => "#{host} OpenVPN #{user}@#{device}",
-      'PayloadIdentifier' => "#{identifier}.#{user}-#{device}",
+      'PayloadDescription' => "OpenVPN Configuration Payload for #{client}@#{host}",
+      'PayloadDisplayName' => "#{host} VoD",
+      'PayloadIdentifier' => "#{identifier}.#{client}",
       'PayloadOrganization' => domain,
       'PayloadRemovalDisallowed' => false,
       'PayloadType' => 'Configuration',

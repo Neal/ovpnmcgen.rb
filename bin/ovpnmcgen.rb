@@ -13,12 +13,12 @@ never_trace!
 global_option '-c', '--config FILE', 'Specify path to config file. [Default: .ovpnmcgen.rb.yml]'
 
 command :generate do |c|
-  c.syntax = 'ovpnmcgen.rb generate [options] <user> <device>'
+  c.syntax = 'ovpnmcgen.rb generate [options] <client_name>'
   c.summary = 'Generates iOS Configuration Profiles (.mobileconfig)'
   c.description = 'Generates iOS configuration profiles (.mobileconfig) that configures OpenVPN for use with VPN-on-Demand that are not accessible through the Apple Configurator or the iPhone Configuration Utility.'
-  c.example 'Typical Usage', 'ovpnmcgen.rb gen --trusted-ssids home --host vpn.example.com --cafile path/to/ca.pem --tafile path/to/ta.key --p12file path/to/john-ipad.p12 --p12pass p12passphrase john ipad'
-  c.example 'Extended Usage', 'ovpnmcgen.rb gen --trusted-ssids home,school --untrusted-ssids virusnet --host vpn.example.com --cafile path/to/ca.pem --tafile path/to/ta.key --p12file path/to/john-ipad.p12 --p12pass p12passphrase john ipad'
-  c.example 'Using OpenSSL to convert files into PKCS#12 (.p12)', 'openssl pkcs12 -export -out path/to/john-ipad.p12 -inkey path/to/john-ipad.key -in path/to/john-ipad.crt -passout pass:p12passphrase -name john-ipad@vpn.example.com'
+  c.example 'Typical Usage', 'ovpnmcgen.rb gen --trusted-ssids home --host vpn.example.com --cafile path/to/ca.pem --tafile path/to/ta.key --p12file path/to/john-ipad.p12 --p12pass p12passphrase johns-ipad'
+  c.example 'Extended Usage', 'ovpnmcgen.rb gen --trusted-ssids home,school --untrusted-ssids virusnet --host vpn.example.com --cafile path/to/ca.pem --tafile path/to/ta.key --p12file path/to/john-ipad.p12 --p12pass p12passphrase johns-ipad'
+  c.example 'Using OpenSSL to convert files into PKCS#12 (.p12)', 'openssl pkcs12 -export -out path/to/john-ipad.p12 -inkey path/to/john-ipad.key -in path/to/john-ipad.crt -passout pass:p12passphrase -name johns-ipad@vpn.example.com'
   c.option '--cafile FILE', 'Path to OpenVPN CA file. (Required)'
   c.option '--tafile FILE', 'Path to TLS-Auth Key file.'
   c.option '--host HOSTNAME', 'Hostname of OpenVPN server. (Required)'
@@ -38,7 +38,7 @@ command :generate do |c|
   c.option '--ovpnconfigfile FILE', 'Path to OpenVPN client config file.'
   c.option '-o', '--output FILE', 'Output to file. [Default: stdout]'
   c.action do |args, options|
-    raise ArgumentError.new "Invalid arguments. Run '#{File.basename(__FILE__)} help generate' for guidance" if args.nil? or args.length < 2
+    raise ArgumentError.new "Invalid arguments. Run '#{File.basename(__FILE__)} help generate' for guidance" if args.nil? or args.length < 1
 
     # Set up configuration environment.
     if options.config
@@ -64,11 +64,10 @@ command :generate do |c|
       :port => (config.port)? config.port : 1194,
       :security_level => (config.security_level)? config.security_level : 'paranoid'
 
-    user, device = args
+    client = args[0]
 
     inputs = {
-      :user => user,
-      :device => device,
+      :client => client,
       :p12file => options.p12file || config.p12file,
       :p12pass => options.p12pass || config.p12pass,
       :cafile => options.cafile || config.cafile,
